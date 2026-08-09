@@ -29,6 +29,7 @@ Options:
   --skip-check         Do not run npm run check before building
   --skip-test          Do not run ./test.sh before building
   --skip-install       Only create tarballs; do not create isolated installs
+  --skip-binary        Do not build the standalone Bun binary
   --skip-bun-install   Do not create the isolated Bun install
   --help               Show this help
 `);
@@ -39,6 +40,7 @@ function parseArgs() {
 		force: false,
 		outDir: undefined,
 		skipBunInstall: false,
+		skipBinary: false,
 		skipCheck: false,
 		skipInstall: false,
 		skipTest: false,
@@ -65,6 +67,10 @@ function parseArgs() {
 		}
 		if (arg === "--skip-install") {
 			options.skipInstall = true;
+			continue;
+		}
+		if (arg === "--skip-binary") {
+			options.skipBinary = true;
 			continue;
 		}
 		if (arg === "--skip-bun-install") {
@@ -241,7 +247,9 @@ for (const pkg of packages) {
 
 let binaryPlatform;
 if (!options.skipInstall) {
-	binaryPlatform = buildBunBinaryRelease(binaryDirectory, outDir);
+	if (!options.skipBinary) {
+		binaryPlatform = buildBunBinaryRelease(binaryDirectory, outDir);
+	}
 
 	mkdirSync(nodeInstallDirectory, { recursive: true });
 	const dependencies = Object.fromEntries(
@@ -275,11 +283,15 @@ for (const tarball of tarballs.values()) {
 }
 
 if (!options.skipInstall) {
-	console.log("\nLocal Bun binary release:");
-	console.log(`  ${binaryDirectory}`);
-	console.log(`  ${join(outDir, `pi-${binaryPlatform}.${String(binaryPlatform).startsWith("windows-") ? "zip" : "tar.gz"}`)}`);
-	console.log("\nRun the local Bun binary release from outside the repository:");
-	console.log(`  ${join(binaryDirectory, String(binaryPlatform).startsWith("windows-") ? "pi.exe" : "pi")} --help`);
+	if (!options.skipBinary) {
+		console.log("\nLocal Bun binary release:");
+		console.log(`  ${binaryDirectory}`);
+		console.log(
+			`  ${join(outDir, `pi-${binaryPlatform}.${String(binaryPlatform).startsWith("windows-") ? "zip" : "tar.gz"}`)}`,
+		);
+		console.log("\nRun the local Bun binary release from outside the repository:");
+		console.log(`  ${join(binaryDirectory, String(binaryPlatform).startsWith("windows-") ? "pi.exe" : "pi")} --help`);
+	}
 
 	console.log("\nIsolated npm install:");
 	console.log(`  ${nodeInstallDirectory}`);

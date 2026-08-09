@@ -5,6 +5,7 @@
 ### Added
 
 - Added a fullscreen exit output setting to choose between printing the final transcript and only a session resume hint.
+- Added a node-only local release mode that skips the standalone Bun binary.
 
 ### Changed
 
