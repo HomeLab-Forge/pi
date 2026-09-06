@@ -1,0 +1,19 @@
+# actionlint config.
+#
+# The org's Required CI runs actionlint with shellcheck over
+# .github/workflows/*. Nearly every workflow here is upstream's
+# (earendil-works/pi) and we do not edit them — a fix in one would conflict on
+# every fork refresh, which is the drift this fork exists to avoid.
+#
+# So we do not gate on shellcheck's STYLE codes in workflow scripts. These
+# three are advisory, not correctness: quoting preference, declare-and-assign,
+# and word-splitting in a context upstream controls. Real shellcheck errors
+# still fail the gate.
+#
+# Scope this down, or drop it, if we ever own these workflows.
+paths:
+  .github/workflows/**/*.yml:
+    ignore:
+      - 'shellcheck reported issue in this script: SC2016'
+      - 'shellcheck reported issue in this script: SC2046'
+      - 'shellcheck reported issue in this script: SC2155'
